@@ -17,6 +17,7 @@ pygame.mixer.music.set_volume(0.1)
 pygame.mixer.music.play(-1)
 
 logo = pygame.image.load('images\\logo.ico')
+extra_logo = pygame.image.load('images\\round_logo.ico')
 
 screen = pygame.display.set_mode((400, 700))
 pygame.display.set_caption('Space Way')
