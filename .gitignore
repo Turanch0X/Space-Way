@@ -5,4 +5,11 @@
 !music/
 !images/
 
+!py/**
+!fonts/**
+!sounds/**
+!music/**
+!images/**
+
+!data.json
 !.gitignore
