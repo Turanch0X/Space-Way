@@ -1,0 +1,8 @@
+*
+!py/
+!fonts/
+!sounds/
+!music/
+!images/
+
+!.gitignore
