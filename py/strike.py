@@ -34,3 +34,27 @@ class Strike:
         self.ammos.append(self.images.ammo.get_rect(topleft=(self.spaceship.x + 40, self.spaceship.y)))
         self.sounds.shot.play()
         self.ammo_left -= 1
+
+    def ammo_strike(self, count, enemies):
+        for i, el_am in enumerate(self.ammos):
+            self.screen.blit(self.images.ammo, el_am)
+            el_am.y -= 5
+
+            if el_am.y < -10:
+                self.ammos.pop(i)
+            
+            if enemies:
+                for index, (meteor_image, meteor_rect) in enumerate(enemies):
+
+                    if el_am.colliderect(meteor_rect):
+                        try:
+                            enemies.pop(index)
+                            self.ammos.pop(i)
+                            count += 1
+                            self.sounds.boom.play()
+                            break  # Avoiding list mutation issues during iteration
+                        
+                        except IndexError:
+                            print('Shit happened') #just for hint
+                            pass
+        return count

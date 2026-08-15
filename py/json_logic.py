@@ -1,7 +1,7 @@
 import json
 
 class JSON_Handler:
-    def __init__(self, count):
+    def __init__(self):
         self.record = 0
 
     def read_json(self):
