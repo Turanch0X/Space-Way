@@ -13,3 +13,5 @@
 
 !data.json
 !.gitignore
+
+py/__pycache__/
