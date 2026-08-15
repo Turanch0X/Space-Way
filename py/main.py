@@ -1,5 +1,9 @@
-import pygame, random, json
-from assets import Sounds, Image_Load
+import pygame, random
+
+from assets import Sounds, Image_Load, Fonts
+from moves import Spaceship, Sky
+from json_logic import JSON_Handler
+from strike import Strike
 
 pygame.init()
 pygame.mixer.init()
@@ -8,33 +12,19 @@ screen = pygame.display.set_mode((400, 700))
 clock = pygame.time.Clock()
 
 timer_list = [1000, 2000, 3000]
+count = 0
 
 images = Image_Load()
 sounds = Sounds()
+fonts = Fonts()
 
 pygame.display.set_icon(images.logo)
 pygame.display.set_caption('Space Way')
 
-sky = pygame.transform.scale(images.sky, (400, 700)).convert_alpha()
-sky_y = 0
-
-label = pygame.font.Font('fonts\\title_font.ttf', 32)
-rec_label = pygame.font.Font('fonts\\title_font.ttf', 12)
-ammo_label = pygame.font.Font('fonts\\title_font.ttf', 18)
-
-finish_label = label.render('Game over', False, (255, 255, 0))
-restart_label = label.render('New game', False, (255, 255, 0))
-restart_label_rect = restart_label.get_rect(topleft=(130, 350))
-
-space_step = 10
-space_x = 160
-space_y = 500
-
-ammos = []
-ammo_left = 10
-strike_active = False
-strike_timer = 0
-strike_duration = 5 * 50
+spaceship = Spaceship(160, 500, 10)
+sky = Sky(screen, images, 0)
+strike = Strike(screen, images, sounds, fonts, spaceship)
+JSON = JSON_Handler(0)
 
 health_idx, shield_idx = 0, 0
 
@@ -47,43 +37,24 @@ enemy_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(enemy_timer, random.choice(timer_list))
 
 running, gaming = True, True
-count = 0
-
-with open('data.json', 'r') as file:
-    data = json.load(file)
-    record = data.get("Your record", 0)
+JSON.read_json()
 
 while running:
-    keys = pygame.key.get_pressed()
     
-    screen.blit(sky, (0, sky_y))
-    screen.blit(sky, (0, sky_y - 700))
-    sky_y += 2
-    if sky_y == 700:
-        sky_y = 0
+    spaceship.move()
+    sky.move()
 
-    if keys[pygame.K_w] and space_y > -5:
-        space_y -= space_step
-    if keys[pygame.K_s] and space_y < 620:
-        space_y += space_step
-    if keys[pygame.K_a] and space_x > -10:
-        space_x -= space_step
-    if keys[pygame.K_d] and space_x < 310:
-        space_x += space_step
-    
     if gaming:
-        info = ammo_label.render(f'{ammo_left}', False, (205, 255, 80))
+        info = fonts.ammo_label.render(f'{strike.ammo_left}', False, (205, 255, 80))
         screen.blit(info, (350, 600))
-        screen.blit(images.spaceship, (space_x, space_y))
-        spaceship_rect = images.spaceship.get_rect(topleft=(space_x, space_y))
+        screen.blit(images.spaceship, (spaceship.x, spaceship.y))
+        spaceship_rect = images.spaceship.get_rect(topleft=(spaceship.x, spaceship.y))
 
         screen.blit(images.lives[health_idx], (300, 650))
         screen.blit(images.shields[shield_idx], (300, 680))
 
-        if strike_active:
-            strike_time_left = (strike_duration - strike_timer) / 50  # Convert frames to seconds
-            strike_timer_label = ammo_label.render(f'{strike_time_left}', False, (205, 255, 80))
-            screen.blit(strike_timer_label, (300, 600))
+        if strike.strike_active:
+            strike.ulta_timer()
 
         if enemy_list:
             for i, (meteor_image, meteor_rect) in enumerate(enemy_list):
@@ -107,20 +78,20 @@ while running:
                     enemy_list.pop(i)
                     count += 1
         
-        if ammos:
-            for i, el_am in enumerate(ammos):
+        if strike.ammos:
+            for i, el_am in enumerate(strike.ammos):
                 screen.blit(images.ammo, el_am)
                 el_am.y -= 5
 
                 if el_am.y < -10:
-                    ammos.pop(i)
+                    strike.ammos.pop(i)
                 
                 if enemy_list:
                     for index, (meteor_image, meteor_rect) in enumerate(enemy_list):
                         if el_am.colliderect(meteor_rect):
                             try:
                                 enemy_list.pop(index)
-                                ammos.pop(i)
+                                strike.ammos.pop(i)
                                 count += 1
                                 sounds.boom.play()
                                 break  # Avoiding list mutation issues during iteration
@@ -136,7 +107,7 @@ while running:
                 if spaceship_rect.colliderect(bust_rect):
                     if bust == images.busts[0]:
                         sounds.energy_up.play()
-                        ammo_left += 5
+                        strike.ammo_left += 5
                     if bust == images.busts[1]:
                         if health_idx == 0:
                             pass
@@ -151,48 +122,40 @@ while running:
                             shield_idx += 1
                     if bust == images.busts[3]:
                         sounds.energy_up.play()
-                        strike_active = True
-                        strike_timer = 0
+                        strike.strike_active = True
+                        strike.strike_timer = 0
                         
                     bust_list.pop(i)
-        if strike_active:
-            strike_timer += 1
-            if strike_timer >= strike_duration:
-                strike_active = False
+        strike.timer_tick()
     else:
-        screen.blit(finish_label, (125, 250))
-        screen.blit(restart_label, (130, 350))
+        screen.blit(fonts.finish_label, (125, 250))
+        screen.blit(fonts.restart_label, (130, 350))
 
         result_text = f'Result: {count}'
-        result = label.render(result_text, False, (255, 255, 0))
+        result = fonts.label.render(result_text, False, (255, 255, 0))
         screen.blit(result, (135, 450))
 
-        # Display record text
-        record_text = f'Your record: {record}'
-        record_display = rec_label.render(record_text, False, (255, 255, 0))
+        record_text = f'Your record: {JSON.record}'
+        record_display = fonts.rec_label.render(record_text, False, (255, 255, 0))
         screen.blit(record_display, (300, 650))
-
-        if count > record:
-            record = count  # Update record
-            with open('data.json', 'w') as file:
-                json.dump({'Your record': record}, file)
+        JSON.write_json(count=count)
 
         mouse = pygame.mouse.get_pos()
-        if restart_label_rect.collidepoint(mouse) and pygame.mouse.get_pressed()[0]:
+        if fonts.restart_label_rect.collidepoint(mouse) and pygame.mouse.get_pressed()[0]:
             gaming = True
-            space_x = 160
-            space_y = 500
-            screen.blit(images.spaceship, (space_x, space_y))
+            spaceship.x = 160
+            spaceship.y = 500
+            screen.blit(images.spaceship, (spaceship.x, spaceship.y))
             enemy_list.clear()
-            ammos.clear()
+            strike.ammos.clear()
             bust_list.clear()
-            count = 0  # Reset the count for the new game
-            ammo_left = 10
+            count = 0
+            strike.ammo_left = 10
             health_idx = 0
             shield_idx = 0
-            strike_active = False
-            strike_timer = 0
-            strike_duration = 5 * 50
+            strike.strike_active = False
+            strike.strike_timer = 0
+            strike.strike_duration = 5 * 50
 
     pygame.display.update()
     for event in pygame.event.get():
@@ -214,15 +177,9 @@ while running:
             bust_list.append((bust, bust_rect))
 
         if gaming and event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-            if strike_active:
-                ammos.append(images.ammo.get_rect(topleft=(space_x + 20, space_y)))
-                sounds.shot.play()
-                ammos.append(images.ammo.get_rect(topleft=(space_x + 60, space_y)))
-                sounds.shot.play()
-
-            if not strike_active and ammo_left > 0:
-                ammos.append(images.ammo.get_rect(topleft=(space_x + 40, space_y)))
-                sounds.shot.play()
-                ammo_left -= 1
+            if strike.strike_active:
+                strike.double_strike()
+            if not strike.strike_active and strike.ammo_left > 0:
+                strike.ordinary_strike()
     
     clock.tick(50)

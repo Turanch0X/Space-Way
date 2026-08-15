@@ -16,7 +16,8 @@ class Sounds():
 class Image_Load():
     def __init__(self):
         self.logo = pygame.image.load('images\\logo.ico')
-        self.sky = pygame.image.load('images\\sky.jpg').convert()
+        sky = pygame.image.load('images\\sky.jpg').convert()
+        self.sky = pygame.transform.scale(sky, (400, 700)).convert_alpha()
         self.spaceship = pygame.image.load('images\\spaceship.png').convert_alpha()
         self.ammo = pygame.image.load('images\\ammo.png').convert_alpha()
 
@@ -56,3 +57,14 @@ class Image_Load():
             pygame.image.load('images\\meteorits\\M.png').convert_alpha(),
             pygame.image.load('images\\meteorits\\L.png').convert_alpha()
         ]
+
+
+class Fonts():
+    def __init__(self):
+        self.label = pygame.font.Font('fonts\\title_font.ttf', 32)
+        self.rec_label = pygame.font.Font('fonts\\title_font.ttf', 12)
+        self.ammo_label = pygame.font.Font('fonts\\title_font.ttf', 18)
+
+        self.finish_label = self.label.render('Game over', False, (255, 255, 0))
+        self.restart_label = self.label.render('New game', False, (255, 255, 0))
+        self.restart_label_rect = self.restart_label.get_rect(topleft=(130, 350))
