@@ -27,11 +27,11 @@ class Bust:
                     self.strike.ammo_left += 5
 
                 if bust == self.images.busts[1]:
-                    if health_idx == 0:
+                    if health_idx >= 8:
                         pass
                     else:
                         self.sounds.heal_up.play()
-                        health_idx -= 1
+                        health_idx += 1
 
                 if bust == self.images.busts[2]:
                     if shield_idx >= 8:

@@ -27,12 +27,12 @@ class Enemy:
                 if shield_idx <= 0:
 
                     if meteor_image == self.images.meteors[0]:
-                        health_idx += 1
+                        health_idx -= 1
                     if meteor_image == self.images.meteors[1]:
-                        health_idx += 2
+                        health_idx -= 2
                     if meteor_image == self.images.meteors[2]:
-                        health_idx += 3
-                    if health_idx >= len(self.images.lives) - 1:
+                        health_idx -= 3
+                    if health_idx <= 0:
                         gaming = False
 
                 else:

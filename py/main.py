@@ -1,6 +1,6 @@
 import pygame
 
-from assets import Sounds, Image_Load, Fonts
+from assets import Sounds, Images, Fonts
 from moves import Spaceship, Sky
 from json_logic import JSON_Handler
 from strike import Strike
@@ -14,10 +14,10 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((400, 700))
 clock = pygame.time.Clock()
 
-health_idx, shield_idx, count = 0, 0, 0
+health_idx, shield_idx, count = 8, 0, 0
 running, gaming = True, True
 
-images = Image_Load()
+images = Images()
 sounds = Sounds()
 fonts = Fonts()
 
@@ -96,7 +96,7 @@ while running:
             busts.bust_list.clear()
             count = 0
             strike.ammo_left = 10
-            health_idx = 0
+            health_idx = 8
             shield_idx = 0
             strike.strike_active = False
             strike.strike_timer = 0

@@ -13,7 +13,7 @@ class Sounds():
         pygame.mixer.music.play(-1)
 
 
-class Image_Load():
+class Images():
     def __init__(self):
         self.logo = pygame.image.load('images\\logo.ico')
         sky = pygame.image.load('images\\sky.jpg').convert()
@@ -22,15 +22,15 @@ class Image_Load():
         self.ammo = pygame.image.load('images\\ammo.png').convert_alpha()
 
         self.lives = [
-            pygame.image.load('images\\lives\\8.png').convert_alpha(),
-            pygame.image.load('images\\lives\\7.png').convert_alpha(),
-            pygame.image.load('images\\lives\\6.png').convert_alpha(),
-            pygame.image.load('images\\lives\\5.png').convert_alpha(),
-            pygame.image.load('images\\lives\\4.png').convert_alpha(),
-            pygame.image.load('images\\lives\\3.png').convert_alpha(),
-            pygame.image.load('images\\lives\\2.png').convert_alpha(),
+            pygame.image.load('images\\lives\\0.png').convert_alpha(),
             pygame.image.load('images\\lives\\1.png').convert_alpha(),
-            pygame.image.load('images\\lives\\0.png').convert_alpha()
+            pygame.image.load('images\\lives\\2.png').convert_alpha(),
+            pygame.image.load('images\\lives\\3.png').convert_alpha(),
+            pygame.image.load('images\\lives\\4.png').convert_alpha(),
+            pygame.image.load('images\\lives\\5.png').convert_alpha(),
+            pygame.image.load('images\\lives\\6.png').convert_alpha(),
+            pygame.image.load('images\\lives\\7.png').convert_alpha(),
+            pygame.image.load('images\\lives\\8.png').convert_alpha()
             ]
 
         self.shields = [
